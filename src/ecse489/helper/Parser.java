@@ -1,14 +1,9 @@
 package ecse489.helper;
 
+import ecse489.helper.DNS.DNSCategory;
 import java.util.Arrays;
 
 public class Parser {
-    public enum DNS {
-        A,
-        MX,
-        NS
-    }
-
     private static final int MAX_NUM_OF_ARGS = 9;
     private static final int MIN_NUM_OF_ARGS = 2;
 
@@ -33,13 +28,13 @@ public class Parser {
             int retries = scrapeRetries();
             int timeout = scrapeTimeout();
             int port = scrapePort();
-            DNS dns = scrapeDNS();
+            DNSCategory dns = scrapeDNS();
             String[] arr = scrapeServerAndName();
             options = new Options(timeout, retries, port, dns, arr[0], arr[1]);
         } catch(IllegalArgumentException e) {
-            System.out.println(e.getLocalizedMessage());
+            System.out.println("ERROR	Incorrect input syntax: " + e.getLocalizedMessage());
         } catch(IllegalArgumentFormatException e) {
-            System.out.println(e.getLocalizedMessage());
+            System.out.println("ERROR	Incorrect input syntax: " + e.getLocalizedMessage());
         }
         return options;
     }
@@ -119,14 +114,14 @@ public class Parser {
      * Scrapes the command line arguments for the type of DNS request.
      * @return An DNS enum
      */
-    private DNS scrapeDNS() {
+    private DNSCategory scrapeDNS() {
         if (Arrays.asList(this.commands).indexOf("-mx") != -1) {
-            return DNS.MX;
+            return DNSCategory.MX;
         }
         if (Arrays.asList(this.commands).indexOf("-ns") != -1) {
-            return DNS.NS;
+            return DNSCategory.NS;
         }
-        return DNS.A;
+        return DNSCategory.A;
     }
 
     /**
@@ -157,23 +152,5 @@ public class Parser {
     }
 }
 
-/**
- * An illegal argument formatting Throwable.
- */
-class IllegalArgumentFormatException extends Exception {
-    /**
-     * Constructor for IllegalArgumentFormatException.
-     */
-    public IllegalArgumentFormatException() {
-        super();
-    }
 
-    /**
-     * @Overload Constructor for IllegalArgumentFormatException.
-     * @param message A String representing the message to display.
-     */
-    public IllegalArgumentFormatException(String message) {
-        super(message);
-    }
-}
 

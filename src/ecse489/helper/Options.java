@@ -1,12 +1,12 @@
 package ecse489.helper;
 
-import ecse489.helper.Parser.DNS;
+import ecse489.helper.DNS.DNSCategory;
 
 public class Options {
     private int timeout;
     private int retries;
     private int port;
-    private DNS dns;
+    private DNSCategory dns;
     private String name;
     private String server;
 
@@ -19,7 +19,7 @@ public class Options {
      * @param server Authoritative server IP
      * @param name Domain name to lookup
      */
-    public Options(int timeout, int retries, int port, DNS dns, String server, String name) {
+    public Options(int timeout, int retries, int port, DNSCategory dns, String server, String name) {
         this.timeout = timeout;
         this.retries = retries;
         this.port = port;
@@ -40,7 +40,7 @@ public class Options {
         return port;
     }
 
-    public DNS getDNS() {
+    public DNSCategory getDNS() {
         return dns;
     }
 
