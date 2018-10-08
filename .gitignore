@@ -1,4 +1,6 @@
 .idea
 .*~
+.classpath
+.project
 *.class
 ECSE489-Lab2.iml
