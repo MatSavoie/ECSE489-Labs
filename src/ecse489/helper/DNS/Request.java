@@ -101,7 +101,7 @@ public class Request {
 				buffer.add(new Byte((byte) 0x02));
 				break;
 			case MX:
-				buffer.add(new Byte((byte) 0x0f));
+				buffer.add(new Byte((byte) 0x0F));
 				break;
 		}
 
@@ -177,20 +177,24 @@ public class Request {
 							+ " seconds (" + this.tries + " retries)");
 					break;
 				} catch (SocketTimeoutException e) {
-					// Number of tries exceed the maximum allowed number of retries
-					// Exit method
-					if (this.tries > this.retries) {
-						System.out.println("ERROR	Maximum number of " + this.retries + " retries exceeded");
-						return;
-					}
 					System.out.println("ERROR	No response received after " + this.timeout + " seconds: retry " 
 							+ this.tries + " out of " + this.retries);
 					this.tries++;
 				}
 			}
 
+			// Number of tries exceed the maximum allowed number of retries
+			// Exit method
+			if (this.tries > this.retries) {
+				System.out.println("ERROR	Maximum number of " + this.retries + " retries exceeded");
+				return;
+			}
+
+			// Obtains response and strips away trailing 0x00 bytes
 			byte[] rawIncomingData = incomingPacket.getData();
 			byte[] strippedData = stripResponse(rawIncomingData);
+
+			// Parse the response and print out important information
 			parseAndPrintResponse(strippedData);		
 		} catch (IllegalArgumentFormatException e) {
 			System.out.println("Error	Incorrect input syntax: " + e.getLocalizedMessage());
@@ -198,9 +202,14 @@ public class Request {
 	}
 
 	public void parseAndPrintResponse(byte[] response) {
-		// Proceed only if the DNS Transaction ID is verified
+		// Proceed only if the DNS Transaction ID is valid
 		if (response[0] == ID_0 && response[1] == ID_1) {
-
+			int numOfAnswers = ((response[6] << 8) & 0x0000FF00) | (response[7] & 0x000000FF);
+			int numOfAuthAnswers = ((response[8] << 8) & 0x0000FF00) | (response[9] & 0x000000FF);
+			int numOfAddAnswers = ((response[10] << 8) & 0x0000FF00) | (response[11] & 0x000000FF);
+			System.out.println(numOfAnswers);
+			System.out.println(numOfAuthAnswers);
+			System.out.println(numOfAddAnswers);
 		} else {
 			System.out.println("ERROR	Invalid DNS Transaction ID: received -> " 
 					+ Integer.toHexString(((((int) response[0]) << 8) & 0x0000FF00) | (((int) response[1]) & 0x000000FF)) 
