@@ -440,6 +440,10 @@ public class Request {
 						String nsRecord = parseInfo(response, parserPointer, length);
 						System.out.print("NS	" + stripeExtraDot(nsRecord) + "	" + responseTTL + "	");
 					}
+					else if ((byte) responseType == 0x05) {
+						String cnameRecord = parseInfo(response, parserPointer, length);
+						System.out.print("CNAME	" + stripeExtraDot(cnameRecord) + "	" + responseTTL + "	");
+					}
 					else if ((byte) responseType == 0x06) {
 						String soaRecord = parseInfo(response, parserPointer, length);
 						System.out.print("SOA	" + stripeExtraDot(soaRecord) + "	" + responseTTL);
