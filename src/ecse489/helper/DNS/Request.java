@@ -52,7 +52,7 @@ public class Request {
 		// Opcode: 0000 (Standard query)
 		// AA: 0		(Authoritative response - reserved for response)
 		// TC: 0		(Truncated response - reserved for response)
-		// RD: 0		(Recursion not desired)
+		// RD: 1		(Recursion desired)
 		buffer.add(new Byte((byte) 0x01));
 
 		// RA: 0		(Recursion supported - reserved for response)
@@ -329,19 +329,19 @@ public class Request {
 		// Proceed only if the DNS Transaction ID is valid
 		if (response[0x00] == ID_0 && response[0x01] == ID_1) {
 			// QR verification
-			if ((response[0x02] & ((byte) 0xA0)) == (byte) 0x00) {
+			if ((response[0x02] & ((byte) 0x80)) != (byte) 0x80) {
 				System.out.println("ERROR	Expected response but received query instead...");
 				return;
 			}
 
 			// AA verification
-			if ((response[0x02] & ((byte) 0x04)) == (byte) 0x01) {
+			if ((response[0x02] & ((byte) 0x04)) == (byte) 0x04) {
+				authority = true;
 				System.out.println("Responding server is an authority for the domain name");
 			}
 
 			// RA verification
-			if ((response[0x03] & ((byte) 0xA0)) == (byte) 0x00) {
-				authority = true;
+			if ((response[0x03] & ((byte) 0x80)) == (byte) 0x00) {
 				System.out.println("WARNING		Recursion desired but not supported...");
 			}
 
@@ -363,8 +363,11 @@ public class Request {
 			}
 
 			// Shift the upper byte by 8 to reconstruct a short with the lower byte
+			// ANCOUNT
 			int numOfAnswers = ((response[0x06] << 8) & 0x0000FF00) | (response[0x07] & 0x000000FF);
+			// NSCOUNT
 			int numOfAuthAnswers = ((response[0x08] << 8) & 0x0000FF00) | (response[0x09] & 0x000000FF);
+			// ARCOUNT
 			int numOfAddAnswers = ((response[0x0A] << 8) & 0x0000FF00) | (response[0x0B] & 0x000000FF);
 
 			// No records were found
@@ -454,6 +457,11 @@ public class Request {
 						int preference = ((response[parserPointer] << 8) & 0x0000FF00) | (response[parserPointer + 1] & 0x000000FF);
 						String mxRecord = parseInfo(response, parserPointer + 2, length - 2);
 						System.out.print("MX	" + stripeExtraDot(mxRecord) + "	" + preference + "	" + responseTTL + "	");
+					}
+					else {
+						System.out.println("ERROR	Type not supported...");
+						parserPointer += length;
+						continue;
 					}
 
 					// Prints if the request server is authoritative or not
