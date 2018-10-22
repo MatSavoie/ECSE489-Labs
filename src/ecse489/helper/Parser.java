@@ -25,6 +25,7 @@ public class Parser {
         Options options = null;
         try {
             checkCommandsLength();
+	    	checkIllegalArguments();
             int retries = scrapeRetries();
             int timeout = scrapeTimeout();
             int port = scrapePort();
@@ -37,7 +38,7 @@ public class Parser {
             System.out.println("ERROR	Incorrect input syntax: " + e.getLocalizedMessage());
         }
         return options;
-    }
+    } 
 
     /**
      * Verifies that the number of arguments is valid.
@@ -52,6 +53,47 @@ public class Parser {
                     this.commands.length + " argument instead.");
         }
     }
+
+	/**
+	 * Verifies that there are no erroneous syntax in the command.
+	 * @throws IllegalArgumentException
+	 */
+	private void checkIllegalArguments() throws IllegalArgumentException {
+		// Check that there are no free floating integers
+		for (int i = 0; i < this.commands.length; i++) {
+			try {
+				// Parse current index and the previous index to see if they are both integers
+				Integer.parseInt(this.commands[i]);
+				Integer.parseInt(this.commands[i - 1]);
+				throw new IllegalArgumentException("Free floating integer inputs detected.");
+			} catch (NumberFormatException e) {
+				continue;
+			} catch (IndexOutOfBoundsException e) {
+				throw new IllegalArgumentException("Free floating integer inputs detected.");
+			}
+		}
+
+		// Check that are are no illegal parameters, e.g. -r2
+		for (int i = 0; i < this.commands.length; i++) {
+			if (this.commands[i].charAt(0) == '-') {
+				try {
+					if (this.commands[i].length() > 3) {
+						throw new IllegalArgumentException("Only -r, -t, -p, -mx or -ns are accepted.");
+					}
+					switch(this.commands[i]) {
+						case "-r":
+						case "-t":
+						case "-p":
+						case "-mx":
+						case "-ns": break;
+						default: throw new IllegalArgumentException("Only -r, -t, -p, -mx or -ns are accepted.");
+					}
+				} catch (IndexOutOfBoundsException e) {
+					throw new IllegalArgumentException("Free floating dash '-' detected.");
+				}
+			}
+		}
+	}
 
     /**
      * Scrapes the command line arguments for the number of retries to perform.
@@ -104,7 +146,7 @@ public class Parser {
             try {
                 port = Integer.parseInt(this.commands[index + 1]);
             } catch (Exception e) {
-                throw new IllegalArgumentFormatException("Excepted integer after -t.");
+                throw new IllegalArgumentFormatException("Excepted integer after -p.");
             }
         }
         return port;

@@ -1,6 +1,15 @@
+# IntelliJ
 .idea
-.*~
+
+# Eclipse
 .classpath
 .project
+
+# Vim
+.un~
+*~
+
+# Java compiled files
 *.class
+
 ECSE489-Lab2.iml
