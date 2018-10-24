@@ -128,6 +128,11 @@ public class Request {
 		return Arrays.copyOfRange(response, 0, stop + 1);
 	}
 
+	/**
+	 * Stripes extra periods before and after the query result.
+	 * @param record - A String representation of a record.
+	 * @return A String with extra periods removed.
+	 */
 	private String stripeExtraDot(String record) {
 		int counter = 0;
 		for (int rem = record.length() - 1; rem >= 0; rem--) {
@@ -153,6 +158,12 @@ public class Request {
 		return record;
 	}
 
+	/**
+	 * Parses through a record and returns a String representing that record.
+	 * @param response - An array of bytes representing a DNS response.
+	 * @param pointer - An integer pointer indicating the start of data. 
+	 * @return A String representing the record.
+	 */
 	private String parseInfoRecursive(byte[] response, int pointer) {
 		String name = "";
 		int length = 0;
